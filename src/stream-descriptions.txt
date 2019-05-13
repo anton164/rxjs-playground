@@ -1,0 +1,56 @@
+RxJS spy plan:
+
+- tag action$ (action$)
+- tag state streams (state-streamName$)
+- tag view streams (view-streamName$)
+
+
+Types of streams:
+- action$
+
+  The stream that ties everything together
+
+- State streams
+
+  Two types:
+    - Global state (always active)
+    - Local state (only active when a view is subscribed)
+
+  Properties:
+    - piped from action$
+    - Some state streams will reduce the action$ using a set of reducers (this is optional)
+
+  Operators:
+    ShareReplay (!ALWAYS!): 
+      buffersize: 1, ensures that new subscribers get the latest state
+      refCount: true / false (depending on whether we want the state to be reset when there are no subscribers)
+
+
+  createState$ (
+    name: 'blabla',
+    action$.pipe(
+
+    ), {
+    shouldResetWhenNoSubscribers: true/false,
+  })
+
+- View streams
+  
+  Has the following responsibility:
+    Take actions from action$, state from state streams or react to an AJAX request
+    and map the values to props that can be handled by the view.
+
+  Properties:
+    - piped from action$, a state stream or an AJAX stream
+    - only active when a view is connected and mounted
+
+
+- Routines 
+
+  Execute side-effects. Often input is an action and it dispatches other actions.
+  This is where the app is "coupled" and different modules are "connected".
+
+  Two types:
+  - Global, App-wide (global subscription keeps them active)
+  - Local, Subscribed when a view is active (do we need these?)
+

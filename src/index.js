@@ -1,14 +1,54 @@
-import { Subject, combineLatest, pipe, Observable, observable } from 'rxjs';
-import { shareReplay, startWith, map, tap } from 'rxjs/operators';
+import { combineLatest, pipe, Observable } from 'rxjs';
+import { shareReplay, startWith, map, tap, filter } from 'rxjs/operators';
+import { dispatchAction, action$ } from './action$';
+import { create } from "rxjs-spy";
+import { tag } from "rxjs-spy/operators/tag";
+const spy = create({
+  // audit: 100
+});
+
+spy.log(/action/);
+spy.log(/test/);
+
+
+window.action$ = action$;
+window.dispatchAction = dispatchAction;
+
+const evenNumbers$ = action$.pipe(
+  filter(i => i % 2 === 0),
+  tag('test-even')
+);
+
+const evenSubscription = evenNumbers$.subscribe();
+setTimeout(() => {
+  evenSubscription.unsubscribe();
+}, 60000);
+
+const oddNumbers$ = action$.pipe(
+  filter(i => i % 2 === 1),
+  tag('test-odd')
+);
+
+const oddSubscription = oddNumbers$.subscribe();
+setTimeout(() => {
+  oddSubscription.unsubscribe();
+}, 60000);
+
+const divByThree$ = action$.pipe(
+  filter(i => i % 3 === 0),
+  tag('test-div-three')
+);
+
+const divThreeSubscription = divByThree$.subscribe();
+setTimeout(() => {
+  divThreeSubscription.unsubscribe();
+}, 60000);
+
 
 const console = {
   log: (...args) =>
     (document.querySelector('pre').textContent += `${args.join(' ')}\n`)
 };
-
-const action$ = new Subject();
-
-const dispatchAction = action => action$.next(action);
 
 let count = 0;
 setInterval(() => dispatchAction(count++), 1000);
@@ -73,7 +113,8 @@ const test1$ = action$.pipe(
   map(i => (i === START ? `start stream-1 ${startCount++}` : i)),
   onFirstSubscription(() => console.log('first subscription stream-1')),
   onFirstSubscription3(() => console.log('first subscription v3 stream-1')),
-  shareReplay({ refCount: true, bufferSize: 1 })
+  shareReplay({ refCount: true, bufferSize: 1 }),
+  tag("test1")
 );
 
 const test2$ = action$.pipe(

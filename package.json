@@ -1,6 +1,8 @@
 {
   "dependencies": {
-    "rxjs": "^6.4.0"
+    "rxjs": "^6.5.1",
+    "rxjs-spy": "^7.5.1",
+    "ts-loader": "^6.0.0"
   },
   "scripts": {
     "dev": "webpack --mode development",
